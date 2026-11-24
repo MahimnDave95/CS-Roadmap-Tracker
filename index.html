@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CS Roadmap Tracker</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#eef1f5;--fg:#14202e;--mut:#5d6b7c;--card:#fff;--bd:#d6dde6;--ok:#17a05d;--c0:#d9822b;--c1:#2f6fed;--c2:#cc3a52;--c3:#7a4fd6;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f141b;--fg:#e8edf3;--mut:#93a1b2;--card:#182029;--bd:#2a3542;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f141b;--fg:#e8edf3;--mut:#93a1b2;--card:#182029;--bd:#2a3542;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif}
+.w{max-width:760px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:2.1rem;font-weight:800;margin:0 0 4px;letter-spacing:-.02em}
+.sub{color:var(--mut);margin:0 0 18px}
+.stack{display:flex;gap:4px;height:14px;margin:6px 0}
+.seg{flex:1;background:var(--bd);border-radius:3px;overflow:hidden}
+.seg i{display:block;height:100%;width:0;background:var(--c);transition:width .3s}
+.leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.85rem;color:var(--mut);margin-bottom:6px}
+.leg b{color:var(--fg)}
+.tot{font-weight:600;margin:10px 0 18px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tabs button,.rs{font:inherit;font-size:.9rem;border:1px solid var(--bd);background:var(--card);color:var(--fg);padding:6px 12px;border-radius:8px;cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+details.wk{background:var(--card);border:1px solid var(--bd);border-left:5px solid var(--c);border-radius:8px;margin:8px 0}
+details.wk[hidden]{display:none}
+summary{cursor:pointer;padding:12px 14px;display:flex;justify-content:space-between;gap:10px;font-weight:600}
+summary small{color:var(--mut);font-weight:400;white-space:nowrap}
+details.full summary small{color:var(--ok);font-weight:600}
+label.t{display:flex;gap:10px;padding:7px 14px;cursor:pointer;align-items:flex-start}
+label.t:last-child{padding-bottom:13px}
+label.t.d span{text-decoration:line-through;color:var(--mut)}
+label.t small{display:block;color:var(--mut)}
+input[type=checkbox]{width:20px;height:20px;margin-top:2px;accent-color:var(--ok);flex:none}
+h2{font-size:1.5rem;margin:34px 0 4px;font-weight:800}
+.ph{margin:22px 0 4px;font-weight:600;color:var(--mut);font-size:.95rem}
+.pr{background:var(--card);border:1px solid var(--bd);border-left:5px solid var(--c);border-radius:8px;margin:8px 0}
+.rs{margin-top:28px}
+:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="w">
+<h1>CS roadmap: from assembly to AI and security</h1>
+<p class="sub">32 weeks at 6 to 8 focused hours a day. Tick each step as you finish it; your progress saves in this browser.</p>
+<div class="stack" id="stack"></div>
+<div class="leg" id="leg"></div>
+<div class="tot" id="tot"></div>
+<div class="tabs" id="tabs"></div>
+<div id="list"></div>
+<h2>Projects to build</h2>
+<p class="sub">Finish each project before or while you move through its phase. These go in your GitHub portfolio.</p>
+<div id="proj"></div>
+<button class="rs" id="rs">Reset all progress</button>
+</div>
+<script>
+const P=["Foundations","Core CS","Cybersecurity","AI and capstone"];
+const D=[
+[0,"Binary, logic and C basics",["Learn binary, hex and bitwise operations (CS50x lectures 0 to 1)","Install gcc; practice variables, loops and functions in C","Solve 15 small C exercises (exercism or CS50 problem sets)"]],
+[0,"C pointers and memory",["Study pointers, arrays and strings; use malloc and free","Find and fix a memory bug with valgrind and gdb","Math: sets, logic and basic proofs (discrete math intro)"]],
+[0,"C data structures",["Build a dynamic array and a linked list","Learn structs, header files and Makefiles","Build a hash table in C"]],
+[0,"Assembly basics",["Learn x86-64 registers and mov, add, cmp, jmp","Write 5 tiny programs in NASM","Compare your C code with the assembly on godbolt.org"]],
+[0,"Stack and calling convention",["Understand stack frames, call and ret","Step through function calls in gdb and watch the stack","Read CS:APP chapter 3 (machine-level programs)"]],
+[0,"Computer architecture",["Nand2Tetris part 1, weeks 1 to 3: gates to ALU","Build a simple CPU in the simulator","Math: vectors and matrices (3Blue1Brown linear algebra)"]],
+[1,"Python, Linux and Git",["Python basics and scripting","Linux command line, permissions and Bash scripts","Git and GitHub: push every project you have so far"]],
+[1,"Algorithms I",["Big-O, arrays, hashing and two pointers","Sorting and binary search","Solve 10 easy LeetCode problems"]],
+[1,"Algorithms II",["Linked lists, stacks, queues and trees","Recursion and backtracking","Solve 15 LeetCode problems"]],
+[1,"Algorithms III",["Graphs: BFS, DFS and Dijkstra","Dynamic programming basics","Solve 15 medium LeetCode problems"]],
+[1,"Operating systems I",["OSTEP: processes and scheduling","Use fork, exec and pipes in C","Start your mini shell project"]],
+[1,"Operating systems II",["Virtual memory and paging","Threads, locks and concurrency bugs","Finish your mini shell"]],
+[1,"Networking",["Learn the TCP/IP layers, ports and DNS","Capture HTTP and DNS traffic in Wireshark","Write a TCP chat client and server with sockets"]],
+[1,"Databases and the web",["SQL: joins, indexes and transactions","HTTP, REST and how the TLS handshake works","Build a small web app backed by a database"]],
+[2,"Security foundations",["Learn the CIA triad, common threats and attack types","Complete the TryHackMe pre-security path","Set up a Kali Linux VM lab"]],
+[2,"Network security",["Scan your own lab with nmap","Analyze attack traffic in Wireshark","Finish the TryHackMe network rooms"]],
+[2,"Web security I",["Learn the OWASP Top 10 and set up Burp Suite","PortSwigger Academy: SQL injection labs","PortSwigger Academy: XSS labs"]],
+[2,"Web security II",["PortSwigger: authentication, CSRF, SSRF and access control labs","Attack DVWA or Juice Shop running locally","Write a professional findings report"]],
+[2,"Cryptography",["Hashing, symmetric encryption, RSA and TLS","Cryptopals sets 1 and 2","Number theory: modular arithmetic and primes"]],
+[2,"Linux and privilege escalation",["Learn Linux privilege escalation basics","Solve 2 easy Hack The Box or TryHackMe machines","Write a walkthrough of each"]],
+[2,"Reverse engineering",["Learn Ghidra and gdb basics","Solve 5 crackmes","Read an introduction to malware analysis"]],
+[2,"Binary exploitation",["Buffer overflows and stack smashing (pwn.college)","Return-oriented programming basics","Solve 3 pwn CTF challenges"]],
+[2,"CTFs and specialization",["Join a live CTF (with a team if possible)","Choose a track: pentest, malware, blue team or cloud","Plan a certification: Security+ or eJPT"]],
+[3,"Python data stack and math",["NumPy, pandas and matplotlib","Linear algebra: MIT 18.06 or 3Blue1Brown","Probability and statistics basics"]],
+[3,"Classical machine learning I",["Andrew Ng ML course: regression and classification","Train and evaluate models with scikit-learn","Finish a Kaggle beginner competition"]],
+[3,"Classical machine learning II",["Decision trees, ensembles and clustering","Overfitting, cross-validation and feature engineering","Complete a full Kaggle project"]],
+[3,"Deep learning I",["Calculus: gradients and the chain rule","Karpathy micrograd: build backprop from scratch","PyTorch tensors and autograd"]],
+[3,"Deep learning II",["CNNs with fast.ai lessons","Train an image classifier","Regularization and hyperparameter tuning"]],
+[3,"Language models",["Karpathy makemore and nanoGPT","Tokenization and embeddings","Read Attention Is All You Need"]],
+[3,"LLMs in practice",["Prompting, fine-tuning and RAG","Build RAG over your own notes with a vector database","Evaluate your system on test questions"]],
+[3,"AI meets security",["Study ML for malware and anomaly detection","Learn LLM attacks: prompt injection and jailbreaks","Attack a toy LLM app that you built yourself"]],
+[3,"Capstone and portfolio",["Finish your capstone project","Clean up GitHub and write a README for every project","Write one blog post and review your weak spots"]]
+];
+const J=[
+[0,"Memory allocator and data structure library in C","A linked list, hash table and simple malloc, with tests."],
+[0,"Tiny CPU emulator","Emulate a few assembly instructions in C or Python."],
+[1,"Mini Unix shell in C","Pipes, redirection, background jobs and cd."],
+[1,"TCP chat server and HTTP server from scratch","Handle multiple clients; serve static files over HTTP."],
+[1,"Full-stack web app with a database","Login, CRUD and deployment to a free host."],
+[2,"Port scanner and packet sniffer for your own lab","Python sockets and scapy; use only on your own network."],
+[2,"Security audit of a deliberately vulnerable app","Test DVWA or Juice Shop and write a full report."],
+[2,"Encrypted notes app","Use AES-GCM and a proper key derivation function correctly."],
+[2,"Five CTF write-ups","Publish clear solutions on your blog or GitHub."],
+[3,"Image classifier","Train a CNN on a dataset you choose and report accuracy."],
+[3,"Mini GPT from scratch","Train a small character-level transformer."],
+[3,"RAG chatbot over your own notes","Embeddings, a vector database and an evaluation set."],
+[3,"Capstone: AI log anomaly detector","Detect suspicious activity in logs and explain each alert."]
+];
+const K="cs-roadmap-v1";let S={};
+try{S=JSON.parse(localStorage.getItem(K)||"{}")}catch(e){}
+function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+function cb(id,t,s){return '<label class="t"><input type="checkbox" data-id="'+id+'"'+(S[id]?" checked":"")+'><span>'+t+(s?"<small>"+s+"</small>":"")+"</span></label>"}
+let h="";
+P.forEach((n,p)=>{h+='<div class="ph" data-p="'+p+'" style="color:var(--c'+p+')">Phase '+(p+1)+": "+n+"</div>";
+D.forEach((w,i)=>{if(w[0]!==p)return;h+='<details class="wk" data-p="'+p+'" style="--c:var(--c'+p+')"><summary><span>Week '+(i+1)+": "+w[1]+'</span><small></small></summary>'+w[2].map((t,j)=>cb("w"+i+"_"+j,t)).join("")+"</details>"})});
+list.innerHTML=h;
+proj.innerHTML=J.map((j,i)=>'<div class="pr" style="--c:var(--c'+j[0]+')">'+cb("p"+i,j[1],j[2])+"</div>").join("");
+stack.innerHTML=P.map((n,p)=>'<div class="seg" style="--c:var(--c'+p+')"><i id="s'+p+'"></i></div>').join("");
+leg.innerHTML=P.map((n,p)=>'<span style="color:var(--c'+p+')"><b id="l'+p+'"></b> '+n+"</span>").join("");
+tabs.innerHTML=["All"].concat(P).map((n,i)=>'<button data-f="'+(i-1)+'" aria-pressed="'+(i==0)+'">'+n+"</button>").join("");
+function upd(){
+const all=document.querySelectorAll("input[data-id]");let d=0;
+all.forEach(c=>{c.parentElement.classList.toggle("d",c.checked);if(c.checked)d++});
+document.querySelectorAll("details.wk").forEach(e=>{const a=e.querySelectorAll("input"),n=[...a].filter(c=>c.checked).length;e.querySelector("small").textContent=n+" of "+a.length;e.classList.toggle("full",n==a.length)});
+P.forEach((x,p)=>{const a=[...document.querySelectorAll('details[data-p="'+p+'"] input')],n=a.filter(c=>c.checked).length;document.getElementById("s"+p).style.width=(100*n/a.length)+"%";document.getElementById("l"+p).textContent=Math.round(100*n/a.length)+"%"});
+tot.textContent=d+" of "+all.length+" steps done ("+Math.round(100*d/all.length)+"%)"}
+document.addEventListener("change",e=>{const c=e.target,id=c.dataset&&c.dataset.id;if(!id)return;if(c.checked)S[id]=1;else delete S[id];save();upd()});
+tabs.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const f=b.dataset.f;tabs.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+document.querySelectorAll("[data-p]").forEach(el=>{if(el.dataset.p!==undefined&&el.tagName!=="BUTTON")el.hidden=f!=="-1"&&el.dataset.p!==f})});
+let armed=false;
+rs.onclick=()=>{if(!armed){armed=true;rs.textContent="Click again to erase all progress";setTimeout(()=>{armed=false;rs.textContent="Reset all progress"},4000);return}
+S={};save();document.querySelectorAll("input[data-id]").forEach(c=>c.checked=false);armed=false;rs.textContent="Reset all progress";upd()};
+upd();
+const first=[...document.querySelectorAll("details.wk")].find(e=>!e.classList.contains("full"));if(first)first.open=true;
+</script>
+</body>
+</html>
